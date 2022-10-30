@@ -1,12 +1,8 @@
 function Sc = servo_step(pose, k, image_gray_new, image_depth_new, image_gray_old)
 
-image_depth_new(image_depth_new==0) = 800;
-mean_d = mean(image_depth_new);
-mean_f = mean(mean_d);
-image_depth_new = mean_f * ones(size(image_depth_new)) * 0.001;
-
 % T_b_v = [1, 0, 0, 0.03; 0, 1, 0, 0.05; 0, 0, 1, 0.03; 0, 0, 0, 1];
-T_t_c = [sqrt(3)/2, 1/2, 0, 0.178 * 0.001; 1/2, -sqrt(3)/2, 0, 145.678 * 0.001; 0, 0, -1, 8.450 * 0.001; 0, 0, 0, 1];
+% T_t_c = [sqrt(3)/2, 1/2, 0, 0.178 * 0.001; 1/2, -sqrt(3)/2, 0, 145.678 * 0.001; 0, 0, -1, 8.450 * 0.001; 0, 0, 0, 1];
+T_t_c = [0, 1, 0, 126 * 0.001; 1, 0, 0, 0; 0, 0, -1, -20 * 0.001; 0, 0, 0, 1];
 
 T_w_t = get_Object_Transform(pose);
 
@@ -34,7 +30,7 @@ image_gray_old_norm = get_image_gray_norm(image_gray_old);
                     image_gray_new_norm, image_gray_old_norm, ...
                     Para_Camera_Intrinsic, image_depth_new);
 % 计算摄像头速度
-Vc = -5 * pinv(L_e) * error_s; 
+Vc = -0.0001 * pinv(L_e) * error_s; 
 
 %% 相机运动
 % 计算下一时刻摄像头速度旋量及位

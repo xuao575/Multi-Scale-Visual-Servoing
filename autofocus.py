@@ -40,9 +40,11 @@ class AutoFocus:
         mov(pidevice, [0, 0, target_z, 0, 0, 0])
         img = vid.read()
         cv2.imshow(f'{target_z}_finish', img)
-        cv2.waitKey(0)
+        cv2.waitKey(100)
 
         # cv2.destroyAllWindows()
+
+        return target_z
 
 
 class VideoCapture:
