@@ -8,8 +8,16 @@ import numpy as np
 
 
 def main():
-    vid = VideoCapture()
     pidevice = pi_init()
+
+    vid = VideoCapture()
+    mean = -1
+    while mean < 1:
+        img = vid.read()
+        cv2.imshow('waiting', img)
+        cv2.waitKey(1)
+        mean = np.mean(img)
+    print('program started')
 
     # object lens: len length, working distance
     # 4: 28.5, 17.35
@@ -17,30 +25,43 @@ def main():
 
     # 10:
     length = 30.5
-    working_dist = 16.7
-    k = [[-7634.29, 0.0, 0.0], [0.0, -7634.29, 0.0], [320, 240, 1.0]]
+    working_dist = 16.9
+    k = [[-7634.29, 0.0, 320.0], [0.0, -7634.29, 240.0], [0.0, 0.0, 1.0]]
 
     # 20: 42.5, 3.6
     # 40: 45, 0.56
     # 60: 45, 0.19
 
     # AutoFocus.autofocus_simple(pidevice)
-    target_z = AutoFocus.autofocus_simple(pidevice, vid, length, working_dist)
+    # target_z = AutoFocus.autofocus_simple(pidevice, vid, length, working_dist)
+    target_z = -3.06
 
     # servo
-    target = cv2.imread('target.png')
-    color = vid.read()
-    target = cv2.resize(target, color.shape[0:2])
-    servo(pidevice, vid, k, working_dist, target, target_z)
+    target = cv2.imread('target_1.png')
+    target_gray = cv2.cvtColor(target, cv2.COLOR_BGR2GRAY)
+
+    # print(target.shape)
+    # cv2.imshow('original', target)
+    # cv2.waitKey(100)
+    # color = vid.read()
+    # target = cv2.resize(target, [color.shape[1], color.shape[0]])
+    # print(target.shape)
+    # cv2.imshow('after', target)
+    # cv2.waitKey(100)
+    cv2.imshow('target', target)
+    cv2.waitKey(100)
+
+    servo(pidevice, vid, k, working_dist, target_gray, target_z)
 
 
-def servo(pidevice, vid, k, working_dist, target, target_z):
+def servo(pidevice, vid, k, working_dist, target_gray, target_z):
     # start matlab
     engine = matlab.engine.start_matlab('MATLAB_R2022b')
     print('matlab initialed')
 
     color = vid.read()
-    depth_map = np.ones(color.shape[0:2]) * working_dist
+    depth_map = np.ones(color.shape[0:2]) * working_dist * 0.001
+    # print(depth_map.shape)
 
     while True:
         # get pose
@@ -51,9 +72,14 @@ def servo(pidevice, vid, k, working_dist, target, target_z):
         # get realsense image
         color = vid.read()
         color_gray = cv2.cvtColor(color, cv2.COLOR_BGR2GRAY)
-        target_gray = cv2.cvtColor(target, cv2.COLOR_BGR2GRAY)
 
-        pose = np.array(engine.servo_step(matlab.double(pose0),
+        # display
+        cv2.imshow('MICRO SERVO', color)
+        cv2.waitKey(1)
+
+        # cv2.imwrite('./target_1.png', color)
+
+        pose = np.array(engine.servoS(matlab.double(pose0),
                                           matlab.double(k),
                                           matlab.double(color_gray.tolist()),
                                           matlab.double(depth_map.tolist()),
@@ -66,10 +92,6 @@ def servo(pidevice, vid, k, working_dist, target, target_z):
 
         # publish pose
         mov(pidevice, pose)
-
-        # display
-        cv2.imshow('MICRO SERVO', color)
-        cv2.waitKey(1)
 
 
 if __name__ == '__main__':

@@ -92,8 +92,8 @@ def pi_init():
     pidevice = GCSDevice(CONTROLLERNAME)
     pidevice.ConnectTCPIP(ipaddress='192.168.10.100', ipport=50000)
     pitools.startup(pidevice, stages=STAGES, refmodes=REFMODES)
-    # pose_init = [0, 0, 0, 0, 0, 0]
-    # mov(pidevice, pose_init)
+    pose_init = [0, 0, -3.06, 0, 0, 0]
+    mov(pidevice, pose_init)
     print('pi initialed')
     return pidevice
 
