@@ -6,7 +6,7 @@ import threading
 
 class AutoFocus:
     @staticmethod
-    def autofocus_simple(pidevice, vid, length=30.5, working_dist=17, half_range=0.2, step=0.02):
+    def autofocus_simple(pidevice, vid, length=30.5, working_dist=17, half_range=0.2, step=0.01):
         # vid = cv2.VideoCapture(0)
         # vid = VideoCapture()
 
@@ -32,6 +32,8 @@ class AutoFocus:
 
             cv2.imshow('rgb', img)
             cv2.waitKey(1)
+            cv2.destroyWindow('rgb')
+
             # cv2.destroyWindow()
 
         target_ind = np.argmax(contrasts)
@@ -41,6 +43,7 @@ class AutoFocus:
         img = vid.read()
         cv2.imshow(f'{np.round(target_z,2)}_finish', img)
         cv2.waitKey(10)
+        cv2.destroyWindow(f'{np.round(target_z,2)}_finish')
 
         # cv2.destroyAllWindows()
 

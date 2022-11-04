@@ -2,7 +2,7 @@ function Sc = servoS(pose, Para_Camera_Intrinsic, image_gray_new, image_depth_ne
 
 % T_b_v = [1, 0, 0, 0.03; 0, 1, 0, 0.05; 0, 0, 1, 0.03; 0, 0, 0, 1];
 % T_t_c = [sqrt(3)/2, 1/2, 0, 0.178 * 0.001; 1/2, -sqrt(3)/2, 0, 145.678 * 0.001; 0, 0, -1, 8.450 * 0.001; 0, 0, 0, 1];
-T_t_c = [0, -1, 0, 126 * 0.001; -1, 0, 0, 0; 0, 0, -1, -58 * 0.001; 0, 0, 0, 1];
+T_t_c = [0, -1, 0, (126-1) * 0.001; -1, 0, 0, (0) * 0.001; 0, 0, -1, -58 * 0.001; 0, 0, 0, 1];
 
 T_w_t = get_Object_Transform(pose);
 
@@ -31,13 +31,15 @@ image_gray_old_norm = get_image_gray_norm(image_gray_old);
 % disp(mean(abs(error_s)));
 
 if mean(abs(error_s)) < 0.07
-    para = [-0.5,0;
-    0,-0.5;
+    para = [-1,0,0;
+    0,-1,0;
+    0,0,-0.5;
     ];
     disp(1)
 else
-    para = [-20,0;
-    0,-20;
+    para = [-10,0,0;
+    0,-10,0;
+    0,0,-5;
     ];
     disp(2)
 end
@@ -50,9 +52,11 @@ Vc = para * (pinv(L_e) * error_s);
 % 计算下一时刻摄像头速度旋量及位
 
 % camera
-Bc = [Vc(1:2);0;0;0;0];
+Bc = [Vc(1:2);0;0;0;Vc(3)];
 % Bc = [0; 0; 0; 0; 0; 0.05];
 % Bc = [0.0000; 0.0000; 0; 0; 0; 0.005];
+
+% Bc = [0;0;0;0;0;0.002];
 
 
 T_c_next = [MatrixExp3(VecToso3(Bc(4:6))), Bc(1:3); 0 0 0 1];

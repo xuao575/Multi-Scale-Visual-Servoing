@@ -6,6 +6,8 @@ import matlab.engine
 import cv2
 import numpy as np
 
+import time
+
 
 def main():
     pidevice = pi_init()
@@ -18,6 +20,7 @@ def main():
         cv2.waitKey(1)
         mean = np.mean(img)
     print('program started')
+    cv2.destroyWindow('waiting')
 
     # object lens: len length, working distance
     # 4: 28.5, 17.35
@@ -33,11 +36,11 @@ def main():
     # 60: 45, 0.19
 
     # AutoFocus.autofocus_simple(pidevice)
-    # target_z = AutoFocus.autofocus_simple(pidevice, vid, length, working_dist)
-    target_z = -3.06
+    target_z = AutoFocus.autofocus_simple(pidevice, vid, length, working_dist)
+    # target_z = -3.02
 
     # servo
-    target = cv2.imread('target_1.png')
+    target = cv2.imread('figure 6.png')
     target_gray = cv2.cvtColor(target, cv2.COLOR_BGR2GRAY)
 
     # print(target.shape)
@@ -63,7 +66,10 @@ def servo(pidevice, vid, k, working_dist, target_gray, target_z):
     depth_map = np.ones(color.shape[0:2]) * working_dist * 0.001
     # print(depth_map.shape)
 
+    i = 0
     while True:
+
+        i = i + 1
         # get pose
         pose0 = get_pose(pidevice)
         pose0 = [pose0['X'], pose0['Y'], pose0['Z'], pose0['U'], pose0['V'], pose0['W']]
@@ -77,7 +83,9 @@ def servo(pidevice, vid, k, working_dist, target_gray, target_z):
         cv2.imshow('MICRO SERVO', color)
         cv2.waitKey(1)
 
-        # cv2.imwrite('./target_1.png', color)
+        # time.sleep(1)
+        # cv2.imwrite(f'figure {i}.png', color)
+
 
         pose = np.array(engine.servoS(matlab.double(pose0),
                                           matlab.double(k),
@@ -87,7 +95,7 @@ def servo(pidevice, vid, k, working_dist, target_gray, target_z):
                                           ))
 
         # pose = [pose[0][0], pose[1][0], pose[2][0], pose[3][0], pose[4][0], pose[5][0]]
-        pose = [pose[0][0], pose[1][0], target_z, 0, 0, pose[5][0]]
+        pose = [np.clip(pose[0][0], -12, 12), np.clip(pose[1][0], -12, 12), target_z, 0, 0, np.clip(pose[5][0], -5, 5)]
         print('pose:', pose)
 
         # publish pose
