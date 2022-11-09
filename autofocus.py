@@ -4,6 +4,7 @@ import numpy as np
 import queue
 import threading
 
+
 class AutoFocus:
     @staticmethod
     def autofocus_simple(pidevice, vid, length=30.5, working_dist=17, half_range=0.2, step=0.01):
@@ -32,7 +33,6 @@ class AutoFocus:
 
             cv2.imshow('rgb', img)
             cv2.waitKey(1)
-            cv2.destroyWindow('rgb')
 
             # cv2.destroyWindow()
 
@@ -43,7 +43,6 @@ class AutoFocus:
         img = vid.read()
         cv2.imshow(f'{np.round(target_z,2)}_finish', img)
         cv2.waitKey(10)
-        cv2.destroyWindow(f'{np.round(target_z,2)}_finish')
 
         # cv2.destroyAllWindows()
 
@@ -73,3 +72,14 @@ class VideoCapture:
 
     def read(self):
         return self.q.get()
+
+
+def waiting(vid):
+    mean = -1
+    while mean < 1:
+        img = vid.read()
+        cv2.imshow('waiting', img)
+        cv2.waitKey(1)
+        mean = np.mean(img)
+    print('program started')
+    cv2.destroyWindow('waiting')

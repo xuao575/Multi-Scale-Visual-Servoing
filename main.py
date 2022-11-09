@@ -1,26 +1,17 @@
 # import the opencv library
 from pi_init import pi_init, get_pose, mov
-from autofocus import AutoFocus, VideoCapture
+from autofocus import AutoFocus, VideoCapture, waiting
 import matlab
 import matlab.engine
 import cv2
 import numpy as np
 
-import time
-
 
 def main():
+    # init
     pidevice = pi_init()
-
     vid = VideoCapture()
-    mean = -1
-    while mean < 1:
-        img = vid.read()
-        cv2.imshow('waiting', img)
-        cv2.waitKey(1)
-        mean = np.mean(img)
-    print('program started')
-    cv2.destroyWindow('waiting')
+    waiting(vid)
 
     # object lens: len length, working distance
     # 4: 28.5, 17.35
