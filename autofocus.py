@@ -6,15 +6,25 @@ import threading
 
 
 class AutoFocus:
-    @staticmethod
-    def autofocus_simple(pidevice, vid, length=30.5, working_dist=17, half_range=0.2, step=0.01):
-        # vid = cv2.VideoCapture(0)
-        # vid = VideoCapture()
+    # object lens: [len length, working distance, intrinsic]
+    params = {4: [28.5, 17.35,
+                  [[-7634.29, 0.0, 320.0], [0.0, -7634.29, 240.0], [0.0, 0.0, 1.0]],
+                  ],
+              10: [30.5, 16.9]
+              }
+
+    def __init__(self, magnification):
+        self.magnification = magnification
+        self.length = AutoFocus.params[magnification][0]
+        self.working_dist = AutoFocus.params[magnification][1]
+        self.k = AutoFocus.params[magnification][2]
+
+    def autofocus_simple(self, pidevice, vid, half_range=0.2, step=0.02):
 
         total = 51.5
         slide = 1
-        space = total - length
-        d = space - (slide + working_dist)
+        space = total - self.length
+        d = space - (slide + self.working_dist)
         zs = np.arange(-(d - half_range), -(d + half_range), -step)
         contrasts = []
 
@@ -31,10 +41,10 @@ class AutoFocus:
 
             contrasts.append(mean)
 
-            cv2.imshow('rgb', img)
+            cv2.imshow('focus', img)
             cv2.waitKey(1)
 
-            # cv2.destroyWindow()
+        cv2.destroyWindow('focus')
 
         target_ind = np.argmax(contrasts)
         target_z = zs[target_ind]
@@ -42,9 +52,7 @@ class AutoFocus:
         mov(pidevice, [0, 0, target_z, 0, 0, 0])
         img = vid.read()
         cv2.imshow(f'{np.round(target_z,2)}_finish', img)
-        cv2.waitKey(10)
-
-        # cv2.destroyAllWindows()
+        cv2.waitKey(100)
 
         return target_z
 
