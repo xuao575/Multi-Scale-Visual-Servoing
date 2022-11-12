@@ -44,6 +44,7 @@ def main():
 
         servo(pidevice, engine, vid, af, target_gray, target_z)
 
+        # 4) rotate lens
         rotate_lens(motor_com, i)
 
 
