@@ -1,26 +1,34 @@
-from pi_init import pi_init, get_pose, mov
+from pi_init import pi_init
 from autofocus import AutoFocus, VideoCapture, waiting
 import matlab
 import matlab.engine
 import cv2
-import numpy as np
 from extrinsic import extrinsic_optimize
+from serialport import COM
+from servo.pi_servo import servo
 
 
 def main():
-    # init
+    lens = [10]
+    # 0) init
+    # pi
     pidevice = pi_init()
 
+    # matlab
     engine = matlab.engine.start_matlab('MATLAB_R2022b')
     engine.cd('servo', nargout=0)
 
+    # video capture
     vid = VideoCapture()
     waiting(vid)
+
+    # motor serial
+    motor_com = COM('COM4', 9600)
 
     # 1) optimize extrinsic
     extrinsic_optimize()
 
-    for magnification in [10]:
+    for i, magnification in enumerate(lens):
         # choose lens
         af = AutoFocus(magnification)
 
@@ -36,34 +44,18 @@ def main():
 
         servo(pidevice, engine, vid, af, target_gray, target_z)
 
+        rotate_lens(motor_com, i)
 
-def servo(pidevice, engine, vid, af, target_gray, target_z):
-    color = vid.read()
-    depth_map = np.ones(color.shape[0:2]) * af.working_dist * 0.001
 
-    while True:
-        # get pose
-        pose0 = get_pose(pidevice)
-        pose0 = [pose0['X'], pose0['Y'], pose0['Z'], pose0['U'], pose0['V'], pose0['W']]
-
-        color = vid.read()
-        color_gray = cv2.cvtColor(color, cv2.COLOR_BGR2GRAY)
-
-        # display
-        cv2.imshow('MICRO SERVO', color)
-        cv2.waitKey(1)
-
-        pose = np.array(engine.servoS(matlab.double(pose0),
-                                      matlab.double(af.k),
-                                      matlab.double(color_gray.tolist()),
-                                      matlab.double(depth_map.tolist()),
-                                      matlab.double(target_gray.tolist())
-                                      ))
-
-        pose = [np.clip(pose[0][0], -12, 12), np.clip(pose[1][0], -12, 12), target_z, 0, 0, np.clip(pose[5][0], -5, 5)]
-        print('pose:', pose)
-
-        mov(pidevice, pose)
+def rotate_lens(motor_com, i):
+    assert i < 3
+    motor_com.open()
+    if i < 2:
+        motor_com.send_data('01200\n')  # clock-wise 120.0 degree
+    else:
+        motor_com.send_data('12400\n')
+    # sleep?
+    motor_com.close()
 
 
 if __name__ == '__main__':
