@@ -1,3 +1,5 @@
+import time
+
 from pi_init import pi_init
 from autofocus import AutoFocus, VideoCapture, waiting
 import matlab
@@ -55,7 +57,7 @@ def rotate_lens(motor_com, i):
         motor_com.send_data('01220\n')  # anti clock-wise 120.0 degree
     else:
         motor_com.send_data('12460\n')  # clock-wise to origin
-    # sleep?
+    time.sleep(15)
     motor_com.close()
 
 

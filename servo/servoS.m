@@ -30,23 +30,24 @@ image_gray_old_norm = get_image_gray_norm(image_gray_old);
 % disp(abs(mean(error_s)));
 % disp(mean(abs(error_s)));
 
+disp(mean(abs(error_s)));
 if mean(abs(error_s)) < 0.07
-    para = [-1,0,0;
-    0,-1,0;
-    0,0,-0.5;
+    para = [-0.1,0,0;
+    0,-0.1,0;
+    0,0,-0.05;
     ];
     disp(1)
 else
-    para = [-10,0,0;
-    0,-10,0;
-    0,0,-5;
+    para = [-5,0,0;
+    0,-5,0;
+    0,0,-1;
     ];
     disp(2)
 end
 
 Vc = para * (pinv(L_e) * error_s);
 % vd = v + (v − v0)(k1 r2 + k2 r4)
-% disp(mean(error_s));
+disp(mean(abs(error_s)));
 
 %% 相机运动
 % 计算下一时刻摄像头速度旋量及位

@@ -28,6 +28,7 @@ def servo(pidevice, engine, vid, af, target_gray, target_z):
                                       ))
 
         pose = [np.clip(pose[0][0], -12, 12), np.clip(pose[1][0], -12, 12), target_z, 0, 0, np.clip(pose[5][0], -5, 5)]
+        pose[5] = 0
         print('pose:', pose)
 
         mov(pidevice, pose)

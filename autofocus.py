@@ -7,11 +7,11 @@ import threading
 
 class AutoFocus:
     # object lens: recommended working z
-    params = {10: {'rec_z': -3., 'rec_y': 0.4, 'scan_range': 0.05, 'step': 0.01,
+    params = {10: {'rec_z': -3., 'rec_y': 0.4, 'scan_range': 0.4, 'step': 0.01,
                    'k': [[-7634.29, 0.0, 320.0], [0.0, -7634.29, 240.0], [0.0, 0.0, 1.0]]},
-              20: {'rec_z': -4.54, 'rec_y': 0.2, 'scan_range': 0.05, 'step': 0.01,
+              20: {'rec_z': -4.54, 'rec_y': 0.2, 'scan_range': 0.3, 'step': 0.01,
                    'k': [[-7634.29, 0.0, 320.0], [0.0, -7634.29, 240.0], [0.0, 0.0, 1.0]]},
-              40: {'rec_z': -4.815, 'rec_y': 0.1, 'scan_range': 0.05, 'step': 0.005,
+              40: {'rec_z': -4.815, 'rec_y': 0.1, 'scan_range': 0.2, 'step': 0.005,
                    'k': [[-7634.29, 0.0, 320.0], [0.0, -7634.29, 240.0], [0.0, 0.0, 1.0]]},
               }
 
@@ -41,10 +41,10 @@ class AutoFocus:
 
             contrasts.append(mean)
 
-            # cv2.imshow('focus', img)
-            # cv2.waitKey(1)
+            cv2.imshow('focus', img)
+            cv2.waitKey(1)
 
-        # cv2.destroyWindow('focus')
+        cv2.destroyWindow('focus')
 
         target_ind = np.argmax(contrasts)
         target_z = zs[target_ind]
