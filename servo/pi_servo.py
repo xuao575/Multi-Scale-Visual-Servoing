@@ -6,7 +6,7 @@ import matlab
 
 def servo(pidevice, engine, vid, af, target_gray, target_z):
     color = vid.read()
-    depth_map = np.ones(color.shape[0:2]) * af.working_dist * 0.001
+    depth_map = np.ones(color.shape[0:2]) * 1 * 0.001
 
     while True:
         # get pose

@@ -6,26 +6,26 @@ import threading
 
 
 class AutoFocus:
-    # object lens: [len length, working distance, intrinsic]
-    params = {4: [28.5, 17.35,
-                  [[-7634.29, 0.0, 320.0], [0.0, -7634.29, 240.0], [0.0, 0.0, 1.0]],
-                  ],
-              10: [30.5, 16.9]
+    # object lens: recommended working z
+    params = {10: {'rec_z': -3., 'rec_y': 0.4, 'scan_range': 0.05, 'step': 0.01,
+                   'k': [[-7634.29, 0.0, 320.0], [0.0, -7634.29, 240.0], [0.0, 0.0, 1.0]]},
+              20: {'rec_z': -4.54, 'rec_y': 0.2, 'scan_range': 0.05, 'step': 0.01,
+                   'k': [[-7634.29, 0.0, 320.0], [0.0, -7634.29, 240.0], [0.0, 0.0, 1.0]]},
+              40: {'rec_z': -4.815, 'rec_y': 0.1, 'scan_range': 0.05, 'step': 0.005,
+                   'k': [[-7634.29, 0.0, 320.0], [0.0, -7634.29, 240.0], [0.0, 0.0, 1.0]]},
               }
 
     def __init__(self, magnification):
         self.magnification = magnification
-        self.length = AutoFocus.params[magnification][0]
-        self.working_dist = AutoFocus.params[magnification][1]
-        self.k = AutoFocus.params[magnification][2]
+        self.rec_z = AutoFocus.params[magnification]['rec_z']
+        self.rec_y = AutoFocus.params[magnification]['rec_y']
+        self.scan_range = AutoFocus.params[magnification]['scan_range']
+        self.step = AutoFocus.params[magnification]['step']
+        self.k = AutoFocus.params[magnification]['k']
 
-    def autofocus_simple(self, pidevice, vid, half_range=0.2, step=0.02):
+    def autofocus_simple(self, pidevice, vid):
 
-        total = 51.5
-        slide = 1
-        space = total - self.length
-        d = space - (slide + self.working_dist)
-        zs = np.arange(-(d - half_range), -(d + half_range), -step)
+        zs = np.arange(self.rec_z + self.scan_range / 2., self.rec_z - self.scan_range / 2., -self.step)
         contrasts = []
 
         for z in zs:
@@ -41,18 +41,18 @@ class AutoFocus:
 
             contrasts.append(mean)
 
-            cv2.imshow('focus', img)
-            cv2.waitKey(1)
+            # cv2.imshow('focus', img)
+            # cv2.waitKey(1)
 
-        cv2.destroyWindow('focus')
+        # cv2.destroyWindow('focus')
 
         target_ind = np.argmax(contrasts)
         target_z = zs[target_ind]
 
         mov(pidevice, [0, 0, target_z, 0, 0, 0])
-        img = vid.read()
-        cv2.imshow(f'{np.round(target_z,2)}_finish', img)
-        cv2.waitKey(100)
+        # img = vid.read()
+        # cv2.imshow(f'{np.round(target_z,2)}_finish', img)
+        # cv2.waitKey(100)
 
         return target_z
 
