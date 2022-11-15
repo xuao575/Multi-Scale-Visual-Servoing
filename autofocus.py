@@ -84,7 +84,7 @@ class VideoCapture:
 
 def waiting(vid):
     mean = -1
-    while mean < 1:
+    while mean < 100:
         img = vid.read()
         cv2.imshow('waiting', img)
         cv2.waitKey(1)

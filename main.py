@@ -56,7 +56,7 @@ def rotate_lens(motor_com, i):
     if i < 2:
         motor_com.send_data('01220\n')  # anti clock-wise 120.0 degree
     else:
-        motor_com.send_data('12460\n')  # clock-wise to origin
+        motor_com.send_data('12420\n')  # clock-wise to origin
     time.sleep(15)
     motor_com.close()
 

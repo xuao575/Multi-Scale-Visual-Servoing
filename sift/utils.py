@@ -153,7 +153,7 @@ def evaluate_correspondence(imgA, imgB, ground_truth_correspondence_file, scale_
 
 
 def pick_points(x, y, num_pts_to_evaluate):
-    if num_pts_to_evaluate == 3:
+    if x.shape[0] == 3:
         return x, y
 
     points = np.concatenate((x, y), axis=1)
