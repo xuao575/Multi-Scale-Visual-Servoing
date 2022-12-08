@@ -1,9 +1,10 @@
+import imutils
 from pi_init import mov
 import cv2
 import numpy as np
 import queue
 import threading
-
+import time
 
 class AutoFocus:
     # object lens: recommended working z
@@ -58,8 +59,11 @@ class AutoFocus:
 
 
 class VideoCapture:
-    def __init__(self):
-        self.cap = cv2.VideoCapture(0)
+    def __init__(self, ind):
+        self.cap = cv2.VideoCapture(ind)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        self.cap.set(cv2.CAP_PROP_FPS, 10)
         self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
         self.q = queue.Queue()
         t = threading.Thread(target=self._reader)
@@ -81,6 +85,24 @@ class VideoCapture:
     def read(self):
         return self.q.get()
 
+def regulate_image(img):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    rsz = imutils.resize(gray, width=640)
+    crop = rsz[:, 140:500]
+    return crop
+
+def shot():
+    vid = VideoCapture(0)
+    img = vid.read()
+    img = regulate_image(img)
+    cv2.imwrite(f'{int(time.time())}.png', img)
+
+    # vid = VideoCapture(0)
+    # while True:
+    #     img = vid.read()
+    #     img = regulate_image(img)
+    #     cv2.imshow('input', img)
+    #     cv2.waitKey(1)
 
 def waiting(vid):
     mean = -1
@@ -91,3 +113,6 @@ def waiting(vid):
         mean = np.mean(img)
     print('program started')
     cv2.destroyWindow('waiting')
+
+if __name__ == '__main__':
+    shot()
